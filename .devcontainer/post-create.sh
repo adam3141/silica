@@ -7,6 +7,7 @@ cd "$(dirname "$0")/.."
 git submodule update --init --recursive
 
 # The ccache and Claude volumes are created by root; hand them to the container user.
+sudo chown "$(id -u):$(id -g)" "${HOME}/.cache"
 sudo chown -R "$(id -u):$(id -g)" "${HOME}/.cache/ccache" "${HOME}/.claude" 2>/dev/null || true
 
 echo "Toolchain:"
