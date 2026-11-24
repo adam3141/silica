@@ -18,7 +18,6 @@ Status: `[ ]` to do, `[~]` in progress, `[x]` done.
 
 ## Open
 
-- [ ] After flint#3 and agate#5 merge, bump the flint and agate pointers in silica (silica#4 bumps flint to the Fatal-decision commit)
 
 ## Next
 
