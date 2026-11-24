@@ -58,18 +58,20 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
    - Run `agate_controls_demo` and try `--theme <Mineral> --light`.
    - On GNOME Wayland it now has a markup title bar. Check that dragging the title bar and resizing from the edges work there.
    - Merge order: flint#4, then agate#6, then this PR. Then bump the submodule pointers in silica.
-2. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
+2. **Do not start milestone 4 until the owner says so.** Its first tasks are in flint/TASKS.md (flint#5): replace flint's JSON parser with glaze, and its XML parser with pugixml, behind the existing `flint::xml` types. Hold flint#4, the hand-written XML parser, until then. The owner asked why we wrote our own parsers; ask before choosing to build rather than use a library.
+3. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
    - binding syntax and modes (OneWay, TwoWay, OneTime);
    - how view models are found: reflection over `flint::model::Observable` members by name;
    - converters;
    - how DataContext flows down the tree;
    - command binding;
    - hot-reload scope (views, themes, both) and file watching (a flint facility).
-3. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
+4. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
 
 ## Working agreements (from the owner)
 
 - **Ask, don't guess.** Ask design questions a few at a time (three or four per round). Do not invent product decisions. Record each decision as an ADR in the right library.
+- **Prefer established libraries.** Before writing our own version of a commodity component (parsers, serialisation), offer the owner the established libraries and let them choose.
 - **Follow `docs/architecture/coding-style.md`.** clang-format and clang-tidy (`tools/tidy.sh`) must be clean. Every public declaration gets a `///` comment. Errors are `std::expected`.
 - **Non-UI code goes in flint.** flint must stay usable by command-line tools, services, other GUI apps and games.
 - **Cross-platform later**, for both OS and graphics API: keep platform and GL code behind interfaces.
