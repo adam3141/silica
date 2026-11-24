@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, opal#1, silica#4–#6). Milestone 3 is in progress._
+_Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, opal#1, silica#4, silica#5). In review: silica#6 (submodule bump to milestone 2), flint#4, agate#6 and this PR (milestone 3)._
 
 ### Done
 
@@ -41,16 +41,31 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
     - WPF precedence with coercion; WPF-style attached properties;
     - `Observable<T>` in flint; parent-owned children (`unique_ptr`); scoped connections; layout rounding on.
 
+- **agate milestone 3** (flint#4, agate#6; in review). Owner decisions this session: bring the XML loader forward from milestone 4; visual-state transitions now (storyboards stay in milestone 5); all four extra controls; window chrome in markup now.
+  - **flint**: `flint::xml`, an XML parser with line and column locations (flint ADR-0010).
+  - **Markup** (ADR-0020): loader, type registry, resources, `Style`, `ControlTemplate` with visual states, `{StaticResource}`, `{DynamicResource}`, `{TemplateBinding}`, `{x:Null}` and `{x:Type}`.
+  - **Precedence correction**: VisualState now ranks above Template (amends ADR-0015). My milestone 2 order would have stopped states from changing template parts; flagged to the owner.
+  - **Animation** (ADR-0021): an animation clock with transitions whose timings are theme resources, plus timers.
+  - **Controls** (ADR-0022): Button, ToggleSwitch, CheckBox, RadioButton, Slider, ScrollViewer, TextBox and TitleBar.
+  - **Themes**: base, dark, light and five minerals in XML (`agate/themes`), `ApplyTheme`, the System variant, animated switching.
+  - **Window chrome**: borderless windows with WindowChrome regions, commands and SDL hit testing.
+  - **Demo**: `agate_controls_demo` loads `demos/controls_demo.xml`.
+  - **Checks**: 95 agate and 96 flint tests. Clean under clang-tidy, ASan and UBSan, and in the release build.
+
 ### Next
 
-1. **Get the owner's feedback on the milestone 2 demo** (`agate_layout_demo`; pages Grid, Dock, Stack, Canvas, Stress, Reflection). Record it in agate/TASKS.md. After the PRs merge, bump the flint and agate pointers in silica via a PR.
-2. **agate milestone 3**: controls, styles, templates and themes. Ask first, a few at a time:
-   - how a control's template is written before markup exists (C++ builders or markup);
-   - Style and Setter shape, and how visual states and transitions are declared (timings in markup, owner requirement);
-   - the resource-dictionary and `ApplyTheme` API;
-   - which controls come first;
-   - window chrome in markup (owner request).
-3. Then milestones 4 (markup and binding) and 5 (animation) per `agate/TASKS.md`. opal starts after that.
+1. **Get the owner's feedback on the milestone 3 demo**, then record it in agate/TASKS.md:
+   - Run `agate_controls_demo` and try `--theme <Mineral> --light`.
+   - On GNOME Wayland it now has a markup title bar. Check that dragging the title bar and resizing from the edges work there.
+   - Merge order: flint#4, then agate#6, then this PR. Then bump the submodule pointers in silica.
+2. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
+   - binding syntax and modes (OneWay, TwoWay, OneTime);
+   - how view models are found: reflection over `flint::model::Observable` members by name;
+   - converters;
+   - how DataContext flows down the tree;
+   - command binding;
+   - hot-reload scope (views, themes, both) and file watching (a flint facility).
+3. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
 
 ## Working agreements (from the owner)
 
@@ -75,6 +90,8 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
   - A pointer to a function template specialised on a `std::meta::info` is consteval-only. Pass a member pointer (`&[:member:]`) as the template argument instead.
   - Bind reflected values to `constexpr` locals before using them in run-time expressions.
   - In a consteval function, a range-for over a temporary `std::vector<info>` fails. Bind the vector to a local first.
+- clang (LLVM 23) rejects `std::expected<std::any, E>` built from a `std::any`, and `std::optional<std::expected<std::any, E>>`: its constraint check recurses, while GCC accepts both. Construct with `std::in_place`.
+- GCC's `-O3` `-Wnull-dereference` fires on unchecked pointer results in release builds only. Check pointers (`ASSERT_NE` in tests) before dereferencing, and build the release preset before opening a PR.
 - Public dependency properties, observables, signals and routed events are PascalCase public members. `.clang-tidy` ignores PascalCase public members and class constants, and review enforces that only those kinds use the exception (coding-style.md sections 4 and 7).
 
 ## Commands (inside the dev container, from the silica root)
