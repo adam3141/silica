@@ -128,6 +128,7 @@ Rules beyond casing (reviewed):
 
 - Names describe purpose. `retryCount`, not `n`. Short names are fine for loop indices and small mathematical expressions (`i`, `x`, `y`).
 - Treat acronyms as words: `HttpClient`, `JsonParser`, `userId`.
+- Use **British English** spelling in every identifier, configuration key and markup name: `Colour`, `Centre`, `Grey`, `Behaviour`, `Serialise`, `Initialise`. agate's C++ names become markup names through reflection, so spelling is public API (workspace ADR-0005).
 - No Hungarian notation or type prefixes. The `m_` prefix (members) and the `k` prefix (constants) are the only prefixes.
 - Namespaces are a single lowercase word. Do not use underscores or multiple words, such as `opal_ui`. Nested namespaces are each a single word, for example `opal::detail`.
 - Boolean variables read as a question: `isVisible`, `hasFocus`.

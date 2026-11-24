@@ -12,9 +12,9 @@ The host needs only Docker (with the NVIDIA container toolkit for GPU access) an
 | LLVM tooling | `clangd-23`, `clang-tidy-23`, `clang-format-23`, `clang-tools-23` from apt.llvm.org, linked to the unversioned names |
 | Build | `cmake`, `ninja-build`, `pkg-config`, `git`, `git-lfs`, `python3` |
 | SDL3 and OpenGL build dependencies | X11, Wayland, libdecor, xkbcommon, EGL, GL, GLES, DRM, GBM, ALSA, PulseAudio, PipeWire, D-Bus, udev, FreeType, HarfBuzz, fontconfig headers |
-| Runtime graphics | Mesa (GL, EGL, Vulkan), `mesa-utils` (`glxinfo`, `eglinfo`) |
+| Runtime graphics | Mesa (GL, EGL, Vulkan), `mesa-utils` (`glxinfo`, `eglinfo`), `libdecor-0-plugin-1-gtk` (window title bars on GNOME Wayland) |
 | Fonts | DejaVu, Noto, JetBrains Mono |
-| Headless UI automation | `xvfb`, `xdotool`, `imagemagick`, `x11-apps` (`xwd`), `x11-utils`, `wmctrl`, `openbox`, `weston` |
+| Headless and screenshot tools | `xvfb`, `xdotool`, `imagemagick`, `x11-apps` (`xwd`), `x11-utils`, `wmctrl`, `openbox`, `weston` (agate itself renders headless with `--headless`; see below) |
 | Profiler | `tracy-profiler` 0.15.0, built from source |
 
 VS Code extensions: `llvm-vs-code-extensions.vscode-clangd`, `Anthropic.claude-code`, `ms-vscode.cpptools` (debugger only; IntelliSense disabled) and `ms-vscode.cmake-tools`.
@@ -27,6 +27,7 @@ clangd reads `build/debug/compile_commands.json`, and uses `--query-driver` to p
 |---|---|
 | X11 / XWayland | `/tmp/.X11-unix` is bind-mounted and `DISPLAY` is passed through. `initializeCommand` runs `xhost +SI:localuser:$USER` on the host, so the container's `vscode` user (same uid) may connect |
 | Wayland | The host's `XDG_RUNTIME_DIR` is mounted at `/run/host-runtime` and `WAYLAND_DISPLAY` is passed through. SDL3 prefers Wayland when it is available; set `SDL_VIDEO_DRIVER=x11` to force X11 |
+| GPU device access | `.devcontainer/post-start.sh` opens the container's copies of `/dev/dri/card*` and `renderD*` to the `vscode` user on every start. VS Code creates the container as root, so the nodes keep the host's root owner and host-specific `video`/`render` group ids. Without this, NVIDIA's Wayland EGL cannot open the render node and EGL falls back to Mesa, which cannot create a GL 4.6 context (`EGL_BAD_MATCH`) |
 | GPU | `hostRequirements.gpu: optional` adds `--gpus all` when the host has an NVIDIA GPU (container toolkit required), with `NVIDIA_DRIVER_CAPABILITIES=all`. `/dev/dri` is passed for Mesa GPUs. Without a GPU, Mesa's llvmpipe renders in software |
 | Shared memory | `--ipc=host` lets X11's MIT-SHM work |
 | Debugging | `SYS_PTRACE` and `seccomp=unconfined` for gdb |
@@ -36,16 +37,17 @@ Check: `glxinfo -B` inside the container should report the host GPU. On the refe
 
 ## Headless runs (screenshots and automation)
 
-To test UI without disturbing the desktop, run against a virtual display:
+agate needs OpenGL 4.6 (agate ADR-0009). Mesa's software renderer under Xvfb stops at 4.5, so **agate renders headless on the GPU** instead, through SDL3's offscreen driver and EGL surfaceless. No display server is involved:
 
 ```bash
-Xvfb :99 -screen 0 1920x1080x24 &
-DISPLAY=:99 SDL_VIDEO_DRIVER=x11 build/debug/agate/demos/<demo> &
-DISPLAY=:99 xdotool search --name "<window title>" mousemove 200 150 click 1
-DISPLAY=:99 import -window root screenshot.png
+build/debug/agate/demos/agate_render_demo --headless --script "wait 2; move 300 300; wait 15; shot /tmp/demo.png"
 ```
 
-Xvfb uses Mesa's software renderer, so it is slower than the GPU path and is meant for correctness, not performance.
+Scripts can move the pointer, click, press keys, wait for frames and take screenshots (see agate's `docs/api/testing.md`). Xvfb, xdotool and ImageMagick remain in the image for non-agate tools and for post-processing screenshots (`convert`, `identify`).
+
+## Known issues
+
+- **X11 from the container on NVIDIA is slow.** GLX over XWayland presents at about 2 fps (`glxgears` shows the same), because the driver's explicit-sync waits time out inside the container. SDL3 picks **Wayland** by default, which runs at full speed with vsync, so this only matters if you force `SDL_VIDEO_DRIVER=x11`. It is tracked in agate's TASKS.md.
 
 ## Volumes
 

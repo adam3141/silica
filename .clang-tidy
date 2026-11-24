@@ -108,4 +108,4 @@ CheckOptions:
   bugprone-argument-comment.StrictMode: true
   bugprone-argument-comment.CommentBoolLiterals: true
   bugprone-argument-comment.CommentIntegerLiterals: false
-  misc-include-cleaner.IgnoreHeaders: 'bits/.*;asm-generic/.*;asm/.*;sys/poll\.h;time\.h;tracy/.*;SDL3/SDL_.*\.h'
+  misc-include-cleaner.IgnoreHeaders: 'bits/.*;asm-generic/.*;asm/.*;sys/poll\.h;time\.h;tracy/.*;SDL3/.*;ft2build\.h;freetype/.*;hb\.h;hb-.*\.h'

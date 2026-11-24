@@ -43,6 +43,7 @@ RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
       libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev \
+      libdecor-0-plugin-1-gtk \
       libegl-dev libgl-dev libgles-dev libglvnd-dev libdrm-dev libgbm-dev \
       libasound2-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev libudev-dev libusb-1.0-0-dev \
       libfreetype-dev libharfbuzz-dev libfontconfig-dev \
@@ -72,6 +73,10 @@ RUN apt-get update \
 
 # Runtime directory for the Wayland socket that devcontainer.json bind-mounts from the host.
 RUN mkdir -p /tmp/runtime-vscode && chown vscode:vscode /tmp/runtime-vscode && chmod 0700 /tmp/runtime-vscode
+
+# ~/.cache must belong to vscode before the ccache volume is mounted inside it, or Mesa and NVIDIA cannot create their
+# shader caches there.
+RUN mkdir -p /home/vscode/.cache/ccache && chown -R vscode:vscode /home/vscode/.cache
 
 ENV CC=gcc-${GCC_VERSION} \
     CXX=g++-${GCC_VERSION} \

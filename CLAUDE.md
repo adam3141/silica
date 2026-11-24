@@ -14,11 +14,11 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-24_
+_Last updated: 2026-11-24 (end of session 1)_
 
 - **Workspace**: dev container, tooling configs, root CMake and presets, and docs are done. See `TASKS.md`.
 - **flint**: the foundation is in review in adam3141/flint#1 (branch `feature/foundation`). silica's submodule pointer is still on flint's scaffold commit; bump it after the PR merges. The logger is complete. It has custom levels, categories, console, file, JSON Lines, network and Tracy sinks, and JSON config. Also done: JSON library, bench and profiling, enum reflection, platform and net. There are 64 tests, and clang-tidy and clang-format are clean. The demos are `flint_log_demo`, `flint_bench_demo` and `flint-logcat`. Next steps are in `flint/TASKS.md`.
-- **agate**: design phase. `agate/docs/architecture.md` has a WPF concept map and **eight open questions**. They are asked a few at a time; record each answer as an ADR in `agate/docs/adr/`. No code yet.
+- **agate**: the design is agreed in ADRs 0001 to 0014 (adam3141/agate#1, branch `feature/design-decisions`). Milestone 1 (SDL3 window, GL 4.6 SDF renderer, HarfBuzz and FreeType text, frame overlay, headless harness, `agate_render_demo`) is in review in adam3141/agate#2 (branch `feature/milestone-1-rendering`). **Next: milestone 2** (DependencyObject and property system, element tree, Measure and Arrange, panels, routed input). Ask the owner about the property-system shape before coding it.
 - **opal**: skeleton only.
 
 ## Working agreements (from the owner)
@@ -64,4 +64,6 @@ docker run -d --name silica-claude --gpus all --device /dev/dri --ipc=host \
 docker exec silica-claude bash -c '<command>'
 ```
 
-To see the UI without touching the owner's desktop, run under `Xvfb :99` and capture with `import -window root`. See `docs/architecture/dev-environment.md`.
+To see the UI without touching the owner's desktop, run agate demos with `--headless --script "...; shot /tmp/x.png"` (GPU, EGL surfaceless), then `docker cp` the PNG out and view it. Xvfb cannot run agate (llvmpipe stops at GL 4.5). See `docs/architecture/dev-environment.md`.
+
+Decisions the owner has made beyond the ADRs: British spelling everywhere (silica ADR-0005); demos and tests may disable `readability-magic-numbers` (pending the owner's confirmation in the PRs).
