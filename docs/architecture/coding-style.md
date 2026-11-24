@@ -119,6 +119,7 @@ The case rules below are enforced by `readability-identifier-naming`.
 | Parameter and local variable | `camelCase` | `tooltipFadeTime` |
 | Private or protected data member | `m_` + `camelCase` | `m_clickCount` |
 | Public data member of a struct | `camelCase` | `point.xPos` |
+| Dependency property, observable, signal or routed event (public member of a class), attached property (static member) | `PascalCase` | `border.Background`, `model.Name`, `button.PointerPressed`, `Grid::Row` |
 | `constexpr` variable (any scope) | `k` + `PascalCase` | `kTooltipFadeTime` |
 | `const` constant at namespace, class, or static scope | `k` + `PascalCase` | `kMaxRetries` |
 | Macro | `UPPER_SNAKE_CASE`, prefixed with the library name | `FLINT_PROFILE_ZONE`, `AGATE_ASSERT`, `OPAL_ASSERT` |
@@ -176,7 +177,8 @@ Rules beyond casing (reviewed):
 
 - **Rule of zero:** a class that owns no resources declares no special member functions. Let the compiler generate them.
 - **Rule of five:** if a class declares any of the destructor, copy constructor, copy assignment, move constructor, or move assignment, it declares or explicitly defaults or deletes all five. **Enforced:** `cppcoreguidelines-special-member-functions`.
-- Data members are private, unless the type is a plain aggregate with no invariants (use a `struct` for that). Private and protected data members use the `m_` prefix. Each data member has a default member initializer. **Enforced:** `cppcoreguidelines-pro-type-member-init`, `misc-non-private-member-variables-in-classes`.
+- Data members are private, unless the type is a plain aggregate with no invariants (use a `struct` for that). Private and protected data members use the `m_` prefix. Each data member has a default member initializer. **Enforced:** `cppcoreguidelines-pro-type-member-init`; review.
+- **Exception:** members that guard their own invariants and are the class's public interface may be public: agate dependency properties (`Property<T>`, `ReadOnlyProperty`), routed events (`RoutedEvent<T>`), flint `Observable<T>`, `Command` and `Signal<...>`, and owning child collections such as `Panel::Children`. They are named in `PascalCase`, because reflection turns them into markup names (agate ADR-0015, flint ADR-0009). `misc-non-private-member-variables-in-classes` cannot tell these types apart from plain data, so it ignores public members and review enforces the rule.
 - Polymorphic base classes have a `virtual` destructor, or a `protected` non-virtual one. **Enforced:** `cppcoreguidelines-virtual-class-destructor`.
 - Member functions that do not change the object are `const`. **Enforced:** `readability-make-member-function-const`.
 - Move operations are `noexcept`. **Enforced:** `cppcoreguidelines-noexcept-move-operations`.

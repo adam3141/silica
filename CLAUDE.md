@@ -14,13 +14,14 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. flint#1, agate#1, agate#3, agate#4, silica#1 and silica#2 are merged to `main`._
+_Last updated: 2026-11-25, session 2. Merged: flint#1–#2, agate#1, #3, #4, silica#1–#3. In review: silica#4 (flint pointer bump), flint#3, agate#5 and silica#5 (milestone 2)._
 
 ### Done
 
 - **Workspace** (silica#1): dev container (Ubuntu 26.04, GCC 16, LLVM 23, SDL3 deps, Tracy 0.15), shared `.clang-format`, `.clang-tidy` and `.clangd`, `tools/tidy.sh`, `tools/sync-configs.sh`, root CMake and presets (`debug`, `release`, `profile`, `asan`), ADRs 0001–0005, coding guide updated for C++26 and British spelling. Dev container GPU fix: `.devcontainer/post-start.sh` opens `/dev/dri` to `vscode` (VS Code starts the container as root, so the NVIDIA render node was unreadable and EGL fell back to Mesa → `EGL_BAD_MATCH`).
 - **flint** (flint#1): logger (standard and custom severity levels, categories and channels, per-sink filters, async with synchronous Fatal flush, console/file/JSON Lines/TCP/Tracy/callback sinks, JSON config with JSON Pointer errors), `flint-logcat`, `flint::json`, `flint::bench` and `FLINT_PROFILE_*`, `flint::meta` enum reflection, platform, net, text. 64 tests. ADRs 0001–0008.
 - **agate design** (agate#1): ADRs 0001–0014 — near-XAML markup, runtime loading with hot reload, MVVM with `Find<T>(name)`, visual states, own SDF GPU renderer, FreeType + HarfBuzz, DIPs with per-monitor scale, themes as resource dictionaries, OpenGL 4.6 core, mineral themes × Dark/Light, UI thread + Dispatcher, bundled Inter and JetBrains Mono, sRGB blending, on-demand rendering.
+- **Dev container fixes** (silica#3): removed the libdecor GTK plugin (GTK's glycin/bubblewrap sandbox aborted demos under Docker; no title bar on GNOME, accepted); host time zone passed by name (`initialize.sh` → `post-start.sh`) so `std::chrono::current_zone()` is local. The owner confirmed the demo runs in VS Code.
 - **agate milestone 1** (agate#3): SDL3 `Application`/`Window`, `GlRenderer` (one instanced draw per frame, SDF shapes, shadows and glow, gradients, clips), text, frame overlay (F12), headless harness (SDL offscreen + EGL, input scripts, PNG capture), `agate_render_demo`. 24 tests including GPU pixel tests. Clean under clang-tidy, ASan and UBSan.
 
 ### Owner feedback on the milestone 1 demo (recorded in agate/TASKS.md, agate#4)
@@ -29,11 +30,27 @@ _Last updated: 2026-11-25, session 2. flint#1, agate#1, agate#3, agate#4, silica
 - No title bar is fine; the owner wants **window chrome declarable in markup** later.
 - The owner approved the PRs and accepted tests/demos disabling `readability-magic-numbers` (tests also disable `bugprone-unchecked-optional-access` and `misc-non-private-member-variables-in-classes`). Logging at Fatal must **not** terminate the process (owner decision, 2026-11-25; flint ADR-0004).
 
+- **agate milestone 2** (agate#5, flint#3, silica#5; in review):
+  - flint: `event::Signal` with scoped `Connection`, plus `model::Observable` and `Command` (flint ADR-0009).
+  - agate core: `DependencyObject`, `Property<T, Metadata...>` registered by reflection, `ReadOnlyProperty`, `AttachedProperty`; precedence, coercion and inheritance (ADRs 0015 and 0016).
+  - Elements: `Visual`, `UIElement` and `FrameworkElement` with cached two-pass layout, plus routed events, hit testing, capture, focus and Tab navigation, all run by `ElementHost` (ADR-0017).
+  - Panels and elements: StackPanel, Grid, DockPanel, Canvas, Border, TextBlock, TextElement (ADR-0018). Layout rounding is on by default (ADR-0019).
+  - Demos and checks: `agate_layout_demo` (six pages) and `agate_layout_bench`; 77 agate and 89 flint tests. Clean under clang-tidy, ASan and UBSan, and the release build is fixed.
+  - Owner decisions this session:
+    - reflected member properties, with metadata **in template arguments**, because clang tooling cannot parse `[[=...]]` annotations;
+    - WPF precedence with coercion; WPF-style attached properties;
+    - `Observable<T>` in flint; parent-owned children (`unique_ptr`); scoped connections; layout rounding on.
+
 ### Next
 
-1. **Confirm the VS Code dev container runs the demo** after "Dev Containers: Rebuild Container". Session 2 fixed the owner's reported abort: the libdecor GTK plugin made GTK load icons through glycin, whose bubblewrap sandbox cannot run under Docker, so GTK aborted. The plugin is removed (no title bar on GNOME, which the owner accepted). The same change passes the host time zone by name, because flint log timestamps showed UTC. If something still fails, ask for the demo output, `eglinfo -B` and `ls -ln /dev/dri` from inside the container.
-2. **agate milestone 2**: DependencyObject and the property system, element tree, Measure and Arrange, panels (StackPanel, Grid, DockPanel, Canvas), routed input, hit testing, focus. **Ask the owner about the property-system shape first** (how properties are declared and whether reflection generates registration; how view models expose observable properties; value precedence; attached properties). Then build, demo, and get feedback.
-3. Then milestones 3 to 5 per `agate/TASKS.md` (controls, styles and themes; markup and binding; animation). opal starts after that.
+1. **Get the owner's feedback on the milestone 2 demo** (`agate_layout_demo`; pages Grid, Dock, Stack, Canvas, Stress, Reflection). Record it in agate/TASKS.md. After the PRs merge, bump the flint and agate pointers in silica via a PR.
+2. **agate milestone 3**: controls, styles, templates and themes. Ask first, a few at a time:
+   - how a control's template is written before markup exists (C++ builders or markup);
+   - Style and Setter shape, and how visual states and transitions are declared (timings in markup, owner requirement);
+   - the resource-dictionary and `ApplyTheme` API;
+   - which controls come first;
+   - window chrome in markup (owner request).
+3. Then milestones 4 (markup and binding) and 5 (animation) per `agate/TASKS.md`. opal starts after that.
 
 ## Working agreements (from the owner)
 
@@ -53,6 +70,12 @@ _Last updated: 2026-11-25, session 2. flint#1, agate#1, agate#3, agate#4, silica
 - GCC 16's `-Wshadow` warns when a scoped enumerator has the same name as a type alias in an enclosing scope (for example `Kind::Array` and `json::Array`). Declare the enum first, or rename.
 - clang rejects incomplete-type uses that GCC accepts. When several types refer to each other, define constructors after every type is complete (see `flint/json/value.hpp`).
 - `misc-include-cleaner` only sees the active preprocessor branch. Check `#ifdef` platform and Tracy blocks by hand after `-fix`.
+- clang tooling (LLVM 23) cannot parse C++26 annotations (`[[=...]]`), so agate property metadata is template arguments (`Property<T, Affects::Measure, Inherits{}>`; ADR-0015). Do not put annotations in headers.
+- GCC 16 reflection quirks (see `agate/core/meta/detail/class_info_impl.hpp`):
+  - A pointer to a function template specialised on a `std::meta::info` is consteval-only. Pass a member pointer (`&[:member:]`) as the template argument instead.
+  - Bind reflected values to `constexpr` locals before using them in run-time expressions.
+  - In a consteval function, a range-for over a temporary `std::vector<info>` fails. Bind the vector to a local first.
+- Public dependency properties, observables, signals and routed events are PascalCase public members. `.clang-tidy` ignores PascalCase public members and class constants, and review enforces that only those kinds use the exception (coding-style.md sections 4 and 7).
 
 ## Commands (inside the dev container, from the silica root)
 
@@ -81,4 +104,4 @@ docker exec silica-claude bash -c '<command>'
 
 To see the UI without touching the owner's desktop, run agate demos with `--headless --script "...; shot /tmp/x.png"` (GPU, EGL surfaceless), then `docker cp` the PNG out and view it. Xvfb cannot run agate (llvmpipe stops at GL 4.5). See `docs/architecture/dev-environment.md`.
 
-Decisions the owner has made beyond the ADRs: British spelling everywhere (silica ADR-0005); demos and tests may disable `readability-magic-numbers`.
+Decisions the owner has made beyond the ADRs: British spelling everywhere (silica ADR-0005); demos and tests may disable `readability-magic-numbers`; Fatal never terminates the process (flint ADR-0004).
