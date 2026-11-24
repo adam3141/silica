@@ -1,6 +1,8 @@
 # Build trees (CMake presets put them under build/)
 /build/
 /out/
+# Host time-zone name written by .devcontainer/initialize.sh
+.devcontainer/.host-timezone
 # Local logs written by demos
 logs/
 # Editor and tool state

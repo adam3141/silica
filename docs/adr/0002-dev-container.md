@@ -19,4 +19,6 @@ The host machine does not have the toolchain installed: GCC 16 for reflection, t
 
 - One image defines the toolchain for everyone, including CI later.
 - `--device=/dev/dri` requires the host to have DRM devices. On hosts without them (some cloud VMs), remove it from `runArgs`.
-- `xhost +SI:localuser:<user>` is run on the host by `initializeCommand`. It grants X access only to processes with the same uid.
+- `xhost +SI:localuser:<user>` is run on the host by `initializeCommand` (`.devcontainer/initialize.sh`). It grants X access only to processes with the same uid.
+- The host time zone is passed by name, not by bind-mounting `/etc/localtime`, so that `std::chrono::current_zone()` sees it (amended 2026-11-25).
+- No libdecor plugin is installed, so there is no title bar on GNOME Wayland: the GTK plugin aborts under Docker because bubblewrap cannot sandbox GTK's image loaders (amended 2026-11-25).

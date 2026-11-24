@@ -8,8 +8,8 @@
   "remoteUser": "vscode",
   "updateRemoteUserUID": true,
 
-  // Allow local (same-uid) clients to use the host X server, so XWayland/X11 apps can open windows.
-  "initializeCommand": "command -v xhost >/dev/null 2>&1 && xhost +SI:localuser:$(id -un) >/dev/null || true",
+  // Runs on the host: grants X11 access to the same uid and records the host time zone for post-start.sh.
+  "initializeCommand": "bash \"${localWorkspaceFolder}/.devcontainer/initialize.sh\"",
 
   // Pass the GPU through when the host has one (NVIDIA via the container toolkit); fall back to Mesa otherwise.
   "hostRequirements": {
@@ -23,7 +23,6 @@
   ],
   "mounts": [
     "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
-    "source=/etc/localtime,target=/etc/localtime,type=bind,readonly",
     "source=${localEnv:XDG_RUNTIME_DIR},target=/run/host-runtime,type=bind",
     "source=silica-ccache,target=/home/vscode/.cache/ccache,type=volume",
     "source=silica-claude,target=/home/vscode/.claude,type=volume"
