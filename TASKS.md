@@ -13,11 +13,12 @@ Status: `[ ]` to do, `[~]` in progress, `[x]` done.
 - [x] Coding guide updated for C++26 and per-library macro prefixes
 - [x] Workspace docs: overview, dev environment, ADRs 0001 to 0005
 - [x] Dev container GPU access fix for VS Code (post-start.sh), ~/.cache ownership
-- [x] Dev container: removed the libdecor GTK plugin (aborted the demo under VS Code); host time zone passed by name so log timestamps are local
+- [x] Dev container: removed the libdecor GTK plugin (aborted the demo under VS Code); host time zone passed by name so log timestamps are local. Confirmed working in VS Code by the owner (2026-11-25)
+- [x] Coding guide and `.clang-tidy`: PascalCase public members for dependency properties, observables, signals, routed events and attached properties
 
 ## Open
 
-- [ ] Confirm with the owner that the rebuilt VS Code dev container runs agate demos (unverified in VS Code itself)
+- [ ] After flint#3 and agate#5 merge, bump the flint and agate pointers in silica (silica#4 bumps flint to the Fatal-decision commit)
 
 ## Next
 

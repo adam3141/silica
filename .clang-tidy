@@ -78,6 +78,9 @@ CheckOptions:
   readability-identifier-naming.ProtectedMemberCase: camelBack
   readability-identifier-naming.ProtectedMemberPrefix: m_
   readability-identifier-naming.PublicMemberCase: camelBack
+  # Dependency properties, observables, signals and routed events are public members named as in markup (PascalCase;
+  # agate ADR-0015, flint ADR-0009). Struct fields stay camelBack.
+  readability-identifier-naming.PublicMemberIgnoredRegexp: '^[A-Z][A-Za-z0-9]*$'
   readability-identifier-naming.ConstexprVariableCase: CamelCase
   readability-identifier-naming.ConstexprVariablePrefix: k
   readability-identifier-naming.GlobalConstantCase: CamelCase
@@ -86,6 +89,8 @@ CheckOptions:
   readability-identifier-naming.StaticConstantPrefix: k
   readability-identifier-naming.ClassConstantCase: CamelCase
   readability-identifier-naming.ClassConstantPrefix: k
+  # Attached properties are static members named as in markup (Grid::Row; agate ADR-0016).
+  readability-identifier-naming.ClassConstantIgnoredRegexp: '^[A-Z][A-Za-z0-9]*$'
   readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
 
   # --- Literals (coding-style.md section 11) ---
@@ -96,6 +101,10 @@ CheckOptions:
 
   # --- Classes (coding-style.md section 7) ---
   misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+  # Public data members are allowed only for dependency properties, observables, signals, routed events and similar
+  # members that guard their own invariants (coding-style.md section 7). Review enforces the restriction; the check
+  # cannot tell those types apart.
+  misc-non-private-member-variables-in-classes.IgnorePublicMemberVariables: true
   cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
   readability-implicit-bool-conversion.AllowPointerConditions: false
   readability-implicit-bool-conversion.AllowIntegerConditions: false
