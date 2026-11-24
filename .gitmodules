@@ -1,0 +1,9 @@
+[submodule "flint"]
+	path = flint
+	url = ../flint.git
+[submodule "agate"]
+	path = agate
+	url = ../agate.git
+[submodule "opal"]
+	path = opal
+	url = ../opal.git

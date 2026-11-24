@@ -1,0 +1,76 @@
+# Layout rules for all C++ in the silica workspace. See docs/architecture/coding-style.md section 3.
+# This file is the source of truth for formatting; keep it and the guide in step.
+---
+Language: Cpp
+BasedOnStyle: Google
+Standard: Latest
+
+# Indentation and width
+IndentWidth: 2
+ContinuationIndentWidth: 4
+UseTab: Never
+ColumnLimit: 140
+AccessModifierOffset: -2
+NamespaceIndentation: None
+IndentCaseLabels: true
+IndentPPDirectives: None
+
+# Braces: attached, always present
+BreakBeforeBraces: Attach
+InsertBraces: true
+AllowShortBlocksOnASingleLine: Empty
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortLambdasOnASingleLine: All
+AllowShortEnumsOnASingleLine: false
+SpaceInEmptyBlock: false
+
+# Pointers, references, qualifiers
+DerivePointerAlignment: false
+PointerAlignment: Left
+ReferenceAlignment: Pointer
+QualifierAlignment: Left
+
+# Parameters and arguments: all on one line, or one per line
+BinPackParameters: OnePerLine
+BinPackArguments: false
+AllowAllParametersOfDeclarationOnNextLine: true
+AllowAllArgumentsOnNextLine: true
+AlignAfterOpenBracket: Align
+
+# Blank lines
+SeparateDefinitionBlocks: Always
+MaxEmptyLinesToKeep: 1
+KeepEmptyLines:
+  AtStartOfBlock: false
+  AtStartOfFile: false
+  AtEndOfFile: false
+InsertNewlineAtEOF: true
+
+# Comments
+FixNamespaceComments: true
+SpacesBeforeTrailingComments: 2
+ReflowComments: true
+
+# Templates and requires-clauses
+AlwaysBreakTemplateDeclarations: Yes
+RequiresClausePosition: OwnLine
+IndentRequiresClause: true
+
+# Includes: own header, standard library, third-party, project
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  # Standard library: <vector>, <cstdint>, <meta>
+  - Regex: '^<[a-z_0-9]+>$'
+    Priority: 1
+  # Third-party with a path: <gtest/gtest.h>, <SDL3/SDL.h>
+  - Regex: '^<.*>$'
+    Priority: 2
+  # Project headers: "flint/log/logger.hpp"
+  - Regex: '^".*"$'
+    Priority: 3
+IncludeIsMainRegex: '(_test)?$'
+...

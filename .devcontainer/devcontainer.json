@@ -1,0 +1,81 @@
+// Silica development container. See docs/architecture/dev-environment.md for how GUI and GPU access work.
+{
+  "name": "silica",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": "."
+  },
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
+
+  // Allow local (same-uid) clients to use the host X server, so XWayland/X11 apps can open windows.
+  "initializeCommand": "command -v xhost >/dev/null 2>&1 && xhost +SI:localuser:$(id -un) >/dev/null || true",
+
+  // Pass the GPU through when the host has one (NVIDIA via the container toolkit); fall back to Mesa otherwise.
+  "hostRequirements": {
+    "gpu": "optional"
+  },
+  "runArgs": [
+    "--device=/dev/dri",
+    "--ipc=host",
+    "--cap-add=SYS_PTRACE",
+    "--security-opt=seccomp=unconfined"
+  ],
+  "mounts": [
+    "source=/tmp/.X11-unix,target=/tmp/.X11-unix,type=bind",
+    "source=/etc/localtime,target=/etc/localtime,type=bind,readonly",
+    "source=${localEnv:XDG_RUNTIME_DIR},target=/run/host-runtime,type=bind",
+    "source=silica-ccache,target=/home/vscode/.cache/ccache,type=volume",
+    "source=silica-claude,target=/home/vscode/.claude,type=volume"
+  ],
+  "containerEnv": {
+    "DISPLAY": "${localEnv:DISPLAY}",
+    "WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY}",
+    "XDG_RUNTIME_DIR": "/run/host-runtime",
+    "XDG_SESSION_TYPE": "${localEnv:XDG_SESSION_TYPE}",
+    "NVIDIA_VISIBLE_DEVICES": "all",
+    "NVIDIA_DRIVER_CAPABILITIES": "all"
+  },
+
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "llvm-vs-code-extensions.vscode-clangd",
+        "Anthropic.claude-code",
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools"
+      ],
+      "settings": {
+        // clangd provides code intelligence; the Microsoft extension is kept only for its debugger.
+        "C_Cpp.intelliSenseEngine": "disabled",
+        "C_Cpp.autocomplete": "disabled",
+        "C_Cpp.errorSquiggles": "disabled",
+        "C_Cpp.formatting": "disabled",
+
+        "clangd.path": "/usr/bin/clangd",
+        "clangd.arguments": [
+          "--compile-commands-dir=${workspaceFolder}/build/debug",
+          "--query-driver=/usr/bin/g++-16,/usr/bin/gcc-16,/usr/bin/c++,/usr/bin/g++",
+          "--background-index",
+          "--clang-tidy",
+          "--header-insertion=never",
+          "--completion-style=detailed"
+        ],
+
+        "cmake.useCMakePresets": "always",
+        "cmake.configureOnOpen": true,
+        "cmake.copyCompileCommands": "",
+
+        "[cpp]": {
+          "editor.defaultFormatter": "llvm-vs-code-extensions.vscode-clangd",
+          "editor.formatOnSave": true
+        },
+        "files.insertFinalNewline": true,
+        "files.trimTrailingWhitespace": true,
+        "editor.rulers": [140]
+      }
+    }
+  }
+}

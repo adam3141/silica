@@ -1,0 +1,19 @@
+# clangd (LLVM 23) does not implement C++26 static reflection (P2996), so GCC-only flags are removed here.
+# Reflection code is confined to flint/meta headers, which give clang tooling stub bodies; see flint ADR-0003.
+CompileFlags:
+  Remove:
+    - -freflection
+    - -fcontracts
+    - -fdiagnostics-color=*
+    - -fconcepts-diagnostics-depth=*
+  Add:
+    - -Wno-unknown-warning-option
+    # Stub bodies for reflection-based templates; see flint/include/flint/meta/reflection.hpp.
+    - -DFLINT_REFLECTION_TOOLING_STUBS
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+  ClangTidy:
+    FastCheckFilter: Loose
+Index:
+  StandardLibrary: Yes

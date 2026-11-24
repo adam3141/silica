@@ -1,0 +1,12 @@
+# Build trees (CMake presets put them under build/)
+/build/
+/out/
+# Local logs written by demos
+logs/
+# Editor and tool state
+.cache/
+.vscode/*
+!.vscode/extensions.json
+compile_commands.json
+*.swp
+.DS_Store

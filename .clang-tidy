@@ -1,0 +1,111 @@
+# Lint rules for all C++ in the silica workspace. See docs/architecture/coding-style.md.
+# Every disabled check carries a reason (coding-style.md section 20).
+#
+# Disabled checks and why:
+#   *-avoid-magic-numbers (cppcoreguidelines alias)   duplicate of readability-magic-numbers
+#   cppcoreguidelines-non-private-member-variables-in-classes   duplicate of the misc- check
+#   cppcoreguidelines-macro-to-enum, modernize-macro-to-enum    macros are already restricted by cppcoreguidelines-macro-usage
+#   cppcoreguidelines-pro-bounds-constant-array-index   the guide allows indexing std::array/std::span with size_t indices
+#   cppcoreguidelines-avoid-do-while                    not a guide rule; do/while is clearer for retry loops
+#   bugprone-easily-swappable-parameters                too noisy for geometry (x, y, width, height); the guide uses argument comments instead
+#   misc-no-recursion                                   recursive descent parsers (XML, JSON) and tree walks are deliberate
+#   readability-identifier-length                       the guide allows short names for indices and maths (i, x, y)
+#   performance-enum-size                               the guide sets an underlying type only when an enum is stored or serialised
+#   modernize-use-designated-initializers               positional aggregate init is fine for small math types (Point{x, y})
+#   readability-math-missing-parentheses                -Wparentheses already covers the cases the guide cares about
+#   readability-avoid-nested-conditional-operator      left to review
+#   portability-avoid-pragma-once                       the guide requires #pragma once (section 5)
+#   cppcoreguidelines-explicit-constructor, misc-explicit-constructor
+#                                                       LLVM 23 aliases of google-explicit-constructor, which the guide names
+#   cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+#                                                       the guide allows size_t indexing; debug builds check bounds with
+#                                                       _GLIBCXX_ASSERTIONS instead
+Checks: >
+  -*,
+  bugprone-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  google-explicit-constructor,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -cppcoreguidelines-non-private-member-variables-in-classes,
+  -cppcoreguidelines-macro-to-enum,
+  -modernize-macro-to-enum,
+  -cppcoreguidelines-pro-bounds-constant-array-index,
+  -cppcoreguidelines-avoid-do-while,
+  -bugprone-easily-swappable-parameters,
+  -misc-no-recursion,
+  -readability-identifier-length,
+  -performance-enum-size,
+  -modernize-use-designated-initializers,
+  -readability-math-missing-parentheses,
+  -readability-avoid-nested-conditional-operator,
+  -portability-avoid-pragma-once,
+  -cppcoreguidelines-explicit-constructor,
+  -misc-explicit-constructor,
+  -cppcoreguidelines-pro-bounds-avoid-unchecked-container-access
+
+HeaderFilterRegex: '.*/(flint|agate|opal)/(include|src|tests|demos|tools)/.*'
+FormatStyle: file
+
+CheckOptions:
+  # --- Naming (coding-style.md section 4) ---
+  readability-identifier-naming.NamespaceCase: lower_case
+  readability-identifier-naming.ClassCase: CamelCase
+  readability-identifier-naming.StructCase: CamelCase
+  readability-identifier-naming.UnionCase: CamelCase
+  readability-identifier-naming.EnumCase: CamelCase
+  readability-identifier-naming.EnumConstantCase: CamelCase
+  readability-identifier-naming.TypeAliasCase: CamelCase
+  readability-identifier-naming.TypedefCase: CamelCase
+  readability-identifier-naming.TemplateParameterCase: CamelCase
+  readability-identifier-naming.TypeTemplateParameterCase: CamelCase
+  readability-identifier-naming.ValueTemplateParameterCase: CamelCase
+  readability-identifier-naming.TemplateTemplateParameterCase: CamelCase
+  readability-identifier-naming.ConceptCase: CamelCase
+  readability-identifier-naming.FunctionCase: CamelCase
+  readability-identifier-naming.MethodCase: CamelCase
+  readability-identifier-naming.ParameterCase: camelBack
+  readability-identifier-naming.ConstantParameterCase: camelBack
+  readability-identifier-naming.LocalVariableCase: camelBack
+  readability-identifier-naming.LocalConstantCase: camelBack
+  readability-identifier-naming.PrivateMemberCase: camelBack
+  readability-identifier-naming.PrivateMemberPrefix: m_
+  readability-identifier-naming.ProtectedMemberCase: camelBack
+  readability-identifier-naming.ProtectedMemberPrefix: m_
+  readability-identifier-naming.PublicMemberCase: camelBack
+  readability-identifier-naming.ConstexprVariableCase: CamelCase
+  readability-identifier-naming.ConstexprVariablePrefix: k
+  readability-identifier-naming.GlobalConstantCase: CamelCase
+  readability-identifier-naming.GlobalConstantPrefix: k
+  readability-identifier-naming.StaticConstantCase: CamelCase
+  readability-identifier-naming.StaticConstantPrefix: k
+  readability-identifier-naming.ClassConstantCase: CamelCase
+  readability-identifier-naming.ClassConstantPrefix: k
+  readability-identifier-naming.MacroDefinitionCase: UPPER_CASE
+
+  # --- Literals (coding-style.md section 11) ---
+  readability-magic-numbers.IgnoredIntegerValues: '1;2;-1'
+  readability-magic-numbers.IgnorePowersOf2IntegerValues: false
+  readability-magic-numbers.IgnoredFloatingPointValues: '0.0;0.5;1.0;2.0;-1.0'
+  readability-magic-numbers.IgnoreUserDefinedLiterals: true
+
+  # --- Classes (coding-style.md section 7) ---
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+  cppcoreguidelines-special-member-functions.AllowSoleDefaultDtor: true
+  readability-implicit-bool-conversion.AllowPointerConditions: false
+  readability-implicit-bool-conversion.AllowIntegerConditions: false
+
+  # --- Functions ---
+  # Lambdas deduce their return type; the guide's trailing-return rule is about named functions.
+  modernize-use-trailing-return-type.TransformLambdas: none
+  readability-function-cognitive-complexity.Threshold: 25
+  readability-function-cognitive-complexity.IgnoreMacros: true
+  bugprone-argument-comment.StrictMode: true
+  bugprone-argument-comment.CommentBoolLiterals: true
+  bugprone-argument-comment.CommentIntegerLiterals: false
+  misc-include-cleaner.IgnoreHeaders: 'bits/.*;asm-generic/.*;asm/.*;sys/poll\.h;time\.h;tracy/.*;SDL3/SDL_.*\.h'
