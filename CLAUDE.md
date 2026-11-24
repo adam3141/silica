@@ -14,12 +14,26 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-24 (end of session 1)_
+_Last updated: 2026-11-24, end of session 1. flint#1, agate#1, agate#3, agate#4 and silica#1 are merged to `main`._
 
-- **Workspace**: dev container, tooling configs, root CMake and presets, and docs are done. See `TASKS.md`.
-- **flint**: the foundation is in review in adam3141/flint#1 (branch `feature/foundation`). silica's submodule pointer is still on flint's scaffold commit; bump it after the PR merges. The logger is complete. It has custom levels, categories, console, file, JSON Lines, network and Tracy sinks, and JSON config. Also done: JSON library, bench and profiling, enum reflection, platform and net. There are 64 tests, and clang-tidy and clang-format are clean. The demos are `flint_log_demo`, `flint_bench_demo` and `flint-logcat`. Next steps are in `flint/TASKS.md`.
-- **agate**: the design is agreed in ADRs 0001 to 0014 (adam3141/agate#1, branch `feature/design-decisions`). Milestone 1 (SDL3 window, GL 4.6 SDF renderer, HarfBuzz and FreeType text, frame overlay, headless harness, `agate_render_demo`) is in review in adam3141/agate#2 (branch `feature/milestone-1-rendering`). **Next: milestone 2** (DependencyObject and property system, element tree, Measure and Arrange, panels, routed input). Ask the owner about the property-system shape before coding it.
-- **opal**: skeleton only.
+### Done
+
+- **Workspace** (silica#1): dev container (Ubuntu 26.04, GCC 16, LLVM 23, SDL3 deps, Tracy 0.15), shared `.clang-format`, `.clang-tidy` and `.clangd`, `tools/tidy.sh`, `tools/sync-configs.sh`, root CMake and presets (`debug`, `release`, `profile`, `asan`), ADRs 0001–0005, coding guide updated for C++26 and British spelling. Dev container GPU fix: `.devcontainer/post-start.sh` opens `/dev/dri` to `vscode` (VS Code starts the container as root, so the NVIDIA render node was unreadable and EGL fell back to Mesa → `EGL_BAD_MATCH`).
+- **flint** (flint#1): logger (standard and custom severity levels, categories and channels, per-sink filters, async with synchronous Fatal flush, console/file/JSON Lines/TCP/Tracy/callback sinks, JSON config with JSON Pointer errors), `flint-logcat`, `flint::json`, `flint::bench` and `FLINT_PROFILE_*`, `flint::meta` enum reflection, platform, net, text. 64 tests. ADRs 0001–0008.
+- **agate design** (agate#1): ADRs 0001–0014 — near-XAML markup, runtime loading with hot reload, MVVM with `Find<T>(name)`, visual states, own SDF GPU renderer, FreeType + HarfBuzz, DIPs with per-monitor scale, themes as resource dictionaries, OpenGL 4.6 core, mineral themes × Dark/Light, UI thread + Dispatcher, bundled Inter and JetBrains Mono, sRGB blending, on-demand rendering.
+- **agate milestone 1** (agate#3): SDL3 `Application`/`Window`, `GlRenderer` (one instanced draw per frame, SDF shapes, shadows and glow, gradients, clips), text, frame overlay (F12), headless harness (SDL offscreen + EGL, input scripts, PNG capture), `agate_render_demo`. 24 tests including GPU pixel tests. Clean under clang-tidy, ASan and UBSan.
+
+### Owner feedback on the milestone 1 demo (recorded in agate/TASKS.md, agate#4)
+
+- Glow and toggle timing are good. **Timings and easing must come from style/theme markup, not C++** (ADR-0004 `VisualTransition`); defaults: toggle 180 ms CubicOut, hover 140 ms CubicOut.
+- No title bar is fine; the owner wants **window chrome declarable in markup** later.
+- The owner approved the PRs and accepted tests/demos disabling `readability-magic-numbers` (tests also disable `bugprone-unchecked-optional-access` and `misc-non-private-member-variables-in-classes`). Still unanswered: should Fatal optionally terminate the process?
+
+### Next
+
+1. **Ask whether the VS Code dev container now works** after "Dev Containers: Rebuild Container". The owner reported it not working at the end of session 1 but had no time to paste the errors; the fix was verified only with a container started like VS Code's, not by VS Code itself. If it still fails, ask for the demo output, `eglinfo -B` and `ls -ln /dev/dri` from inside the container. Meanwhile the owner runs demos from the host with `docker exec -it silica-claude bash -c 'cd /workspaces/silica && build/debug/agate/demos/agate_render_demo'`.
+2. **agate milestone 2**: DependencyObject and the property system, element tree, Measure and Arrange, panels (StackPanel, Grid, DockPanel, Canvas), routed input, hit testing, focus. **Ask the owner about the property-system shape first** (how properties are declared and whether reflection generates registration; how view models expose observable properties; value precedence; attached properties). Then build, demo, and get feedback.
+3. Then milestones 3 to 5 per `agate/TASKS.md` (controls, styles and themes; markup and binding; animation). opal starts after that.
 
 ## Working agreements (from the owner)
 
@@ -29,7 +43,7 @@ _Last updated: 2026-11-24 (end of session 1)_
 - **Cross-platform later**, for both OS and graphics API: keep platform and GL code behind interfaces.
 - **Performance matters**: UI must be fluid. Use `FLINT_PROFILE_*` (Tracy) and `flint::bench`.
 - **Demos**: at milestones, give the owner something to run and ask for feedback.
-- **Git**: the initial scaffold went to `main`. Since then, each feature goes on a `feature/<name>` branch with a PR. After a submodule PR merges, bump the submodule pointer in silica.
+- **Git**: the initial scaffold went to `main`. Since then every change, docs included, goes on a branch (`feature/<name>`, `docs/<name>`) with a PR; direct pushes to `main` are blocked. Ask the owner before merging a PR (blanket merge approval was given only for the session 1 PRs). After a submodule PR merges, bump the pointer in silica via a PR. Don't stack PRs on branches that `--delete-branch` removes: GitHub closes the dependent PR (this happened to agate#2, replaced by agate#3).
 - **Docs**: keep `docs/architecture.md`, `docs/api/`, `docs/adr/` and `TASKS.md` current in each repository. opal's design will be based on agate's API docs.
 
 ## Toolchain facts that matter
@@ -66,4 +80,4 @@ docker exec silica-claude bash -c '<command>'
 
 To see the UI without touching the owner's desktop, run agate demos with `--headless --script "...; shot /tmp/x.png"` (GPU, EGL surfaceless), then `docker cp` the PNG out and view it. Xvfb cannot run agate (llvmpipe stops at GL 4.5). See `docs/architecture/dev-environment.md`.
 
-Decisions the owner has made beyond the ADRs: British spelling everywhere (silica ADR-0005); demos and tests may disable `readability-magic-numbers` (pending the owner's confirmation in the PRs).
+Decisions the owner has made beyond the ADRs: British spelling everywhere (silica ADR-0005); demos and tests may disable `readability-magic-numbers`.

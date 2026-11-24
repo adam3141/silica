@@ -11,7 +11,12 @@ Status: `[ ]` to do, `[~]` in progress, `[x]` done.
 - [x] `.clang-format`, `.clang-tidy` and `.clangd` matching coding-style.md; `tools/sync-configs.sh`, `tools/tidy.sh`
 - [x] Root CMake build and presets (debug, release, profile, asan)
 - [x] Coding guide updated for C++26 and per-library macro prefixes
-- [x] Workspace docs: overview, dev environment, ADRs 0001 to 0004
+- [x] Workspace docs: overview, dev environment, ADRs 0001 to 0005
+- [x] Dev container GPU access fix for VS Code (post-start.sh), title-bar plugin, ~/.cache ownership
+
+## Open
+
+- [ ] Confirm with the owner that the rebuilt VS Code dev container runs agate demos (unverified in VS Code itself)
 
 ## Next
 
