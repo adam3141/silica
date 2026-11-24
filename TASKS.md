@@ -12,7 +12,8 @@ Status: `[ ]` to do, `[~]` in progress, `[x]` done.
 - [x] Root CMake build and presets (debug, release, profile, asan)
 - [x] Coding guide updated for C++26 and per-library macro prefixes
 - [x] Workspace docs: overview, dev environment, ADRs 0001 to 0005
-- [x] Dev container GPU access fix for VS Code (post-start.sh), title-bar plugin, ~/.cache ownership
+- [x] Dev container GPU access fix for VS Code (post-start.sh), ~/.cache ownership
+- [x] Dev container: removed the libdecor GTK plugin (aborted the demo under VS Code); host time zone passed by name so log timestamps are local
 
 ## Open
 

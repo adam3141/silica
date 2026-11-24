@@ -39,11 +39,13 @@ RUN wget -qO /etc/apt/trusted.gpg.d/apt.llvm.org.asc https://apt.llvm.org/llvm-s
 # --- SDL3 / OpenGL build and runtime dependencies -------------------------------------------------------------------
 # SDL3 is built from source by CMake FetchContent (ADR-0002); these are the system headers it compiles against so that
 # both the X11 and Wayland video drivers, and the audio back ends, are available.
+# No libdecor plugin is installed, so windows have no title bar on GNOME Wayland. The GTK plugin aborts the app inside
+# a container: GTK loads icons through glycin, which sandboxes its loaders with bubblewrap, and bubblewrap cannot create
+# namespaces under Docker's AppArmor profile. agate will draw its own window chrome (agate TASKS.md).
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev libxss-dev libxtst-dev \
       libxkbcommon-dev libwayland-dev wayland-protocols libdecor-0-dev \
-      libdecor-0-plugin-1-gtk \
       libegl-dev libgl-dev libgles-dev libglvnd-dev libdrm-dev libgbm-dev \
       libasound2-dev libpulse-dev libpipewire-0.3-dev libdbus-1-dev libudev-dev libusb-1.0-0-dev \
       libfreetype-dev libharfbuzz-dev libfontconfig-dev \

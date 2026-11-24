@@ -13,3 +13,14 @@ fi
 
 # Shader caches (Mesa, NVIDIA) live in ~/.cache.
 sudo chown "$(id -u):$(id -g)" "${HOME}/.cache" 2>/dev/null || true
+
+# Time zone. initialize.sh records the host's zone name; point /etc/localtime at it so that both glibc and
+# std::chrono::current_zone() (used for log timestamps) report host time.
+tz_file="$(dirname "$0")/.host-timezone"
+if [[ -r "${tz_file}" ]]; then
+  tz="$(<"${tz_file}")"
+  if [[ -n "${tz}" && -f "/usr/share/zoneinfo/${tz}" ]]; then
+    sudo ln -sfn "/usr/share/zoneinfo/${tz}" /etc/localtime
+    printf '%s\n' "${tz}" | sudo tee /etc/timezone >/dev/null
+  fi
+fi
