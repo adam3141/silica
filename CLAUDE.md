@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. Merged: flint#1–#2, agate#1, #3, #4, silica#1–#3. In review: silica#4 (flint pointer bump), flint#3, agate#5 and silica#5 (milestone 2)._
+_Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, opal#1, silica#4–#6). Milestone 3 is in progress._
 
 ### Done
 
@@ -30,7 +30,7 @@ _Last updated: 2026-11-25, session 2. Merged: flint#1–#2, agate#1, #3, #4, sil
 - No title bar is fine; the owner wants **window chrome declarable in markup** later.
 - The owner approved the PRs and accepted tests/demos disabling `readability-magic-numbers` (tests also disable `bugprone-unchecked-optional-access` and `misc-non-private-member-variables-in-classes`). Logging at Fatal must **not** terminate the process (owner decision, 2026-11-25; flint ADR-0004).
 
-- **agate milestone 2** (agate#5, flint#3, silica#5; in review):
+- **agate milestone 2** (agate#5, flint#3, silica#5; merged; owner: "looks great so far" from screenshots):
   - flint: `event::Signal` with scoped `Connection`, plus `model::Observable` and `Command` (flint ADR-0009).
   - agate core: `DependencyObject`, `Property<T, Metadata...>` registered by reflection, `ReadOnlyProperty`, `AttachedProperty`; precedence, coercion and inheritance (ADRs 0015 and 0016).
   - Elements: `Visual`, `UIElement` and `FrameworkElement` with cached two-pass layout, plus routed events, hit testing, capture, focus and Tab navigation, all run by `ElementHost` (ADR-0017).
