@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#5, agate#5–#6, opal#1, silica#4–#7), and flint#6 (glaze, pugixml). Milestone 4 is in review: flint#7, agate#7, opal#2 and this PR._
+_Last updated: 2026-11-26, session 2. Milestones 2, 3 and 4 are merged (flint#3–#7, agate#5–#7, opal#1–#2, silica#4–#8); this PR bumps the submodules to them._
 
 ### Done
 
@@ -52,7 +52,7 @@ _Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#
   - **Demo**: `agate_controls_demo` loads `demos/controls_demo.xml`.
   - **Checks**: 95 agate and 96 flint tests. Clean under clang-tidy, ASan and UBSan, and in the release build.
 
-- **Milestone 4** (in review: flint#7, agate#7). Owner decisions this session (ADRs agate 0023–0025, flint 0011–0014):
+- **Milestone 4** (merged: flint#6–#7, agate#7, opal#2, silica#8). Owner decisions this session (ADRs agate 0023–0025, flint 0011–0014):
   - flint#6 (merged): glaze v9.1.0 replaces `flint::json` (used directly; `log::LoggingConfig` is a glaze-read struct), pugixml v1.16 parses behind `flint::xml`.
   - flint#7: `ModelClassOf<T>` (reflected view-model members), `ObjectRef`, `ObservableVector<T>`, `CollectionRef`, `FileWatcher`; log registries now live until exit.
   - agate#7: `DataContext`, WPF-identical `{Binding}` (modes, `BindsTwoWayByDefault{}`, StringFormat, FallbackValue, converters in resources), `ItemsControl` + `DataTemplate`, hot reload (`ApplicationOptions::hotReload`, `Window::LoadView`), `agate_tasks_demo`.
@@ -72,7 +72,7 @@ not yet confirmed that on GNOME Wayland.
 
 ### Next
 
-1. **Owner feedback on the milestone 4 demo.** Run `agate_tasks_demo`, edit `agate/demos/tasks_demo.xml` (or a theme file) while it runs and save. Merge order: flint#7, then agate#7 (it needs flint#7), opal#2, then this PR; then bump the submodule pointers in silica.
+1. **Owner feedback on the milestone 4 demo.** Run `agate_tasks_demo`, edit `agate/demos/tasks_demo.xml` (or a theme file) while it runs and save.
 2. **Milestone 4 follow-ups** (agate/TASKS.md): ElementName/RelativeSource bindings, UpdateSourceTrigger, validation, ListBox with selection, virtualisation, reloading app resource files. Ask the owner which belong in milestone 4 and which wait.
 3. **Milestone 5**: storyboards and keyframes on the existing clock. Ask the owner first (a few questions at a time). opal starts after that.
 
