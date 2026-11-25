@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, opal#1, silica#4, silica#5). In review: silica#6 (submodule bump to milestone 2), flint#4, agate#6 and this PR (milestone 3)._
+_Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#5, agate#5–#6, opal#1, silica#4–#7). The owner has started milestone 4._
 
 ### Done
 
@@ -41,7 +41,7 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
     - WPF precedence with coercion; WPF-style attached properties;
     - `Observable<T>` in flint; parent-owned children (`unique_ptr`); scoped connections; layout rounding on.
 
-- **agate milestone 3** (flint#4, agate#6; in review). Owner decisions this session: bring the XML loader forward from milestone 4; visual-state transitions now (storyboards stay in milestone 5); all four extra controls; window chrome in markup now.
+- **agate milestone 3** (flint#4, agate#6; merged). Owner decisions this session: bring the XML loader forward from milestone 4; visual-state transitions now (storyboards stay in milestone 5); all four extra controls; window chrome in markup now.
   - **flint**: `flint::xml`, an XML parser with line and column locations (flint ADR-0010).
   - **Markup** (ADR-0020): loader, type registry, resources, `Style`, `ControlTemplate` with visual states, `{StaticResource}`, `{DynamicResource}`, `{TemplateBinding}`, `{x:Null}` and `{x:Type}`.
   - **Precedence correction**: VisualState now ranks above Template (amends ADR-0015). My milestone 2 order would have stopped states from changing template parts; flagged to the owner.
@@ -52,21 +52,32 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
   - **Demo**: `agate_controls_demo` loads `demos/controls_demo.xml`.
   - **Checks**: 95 agate and 96 flint tests. Clean under clang-tidy, ASan and UBSan, and in the release build.
 
+### Milestone 3 interaction check
+
+The owner asked whether the UI can be tested by clicking and dragging. Headless scripts (`--headless --script`, see
+`Application::RunScript`) drove the controls demo with clicks, drags, keys, the wheel and theme switches, capturing
+frames mid-transition. Hover, press, toggles, radio groups, slider and scroll-bar drags, track clicks, typing, Tab,
+Space/Enter and theme fades all behaved. Two bugs were found and fixed (agate#6):
+
+- states set by code before the first frame animated in. Elements now snap until first arranged (`HasBeenArranged`);
+- the window background switched instantly on a theme change. It now fades with the theme.
+
+Not testable headlessly: the compositor moving and resizing a real window from the custom title bar. The owner has
+not yet confirmed that on GNOME Wayland.
+
 ### Next
 
-1. **Get the owner's feedback on the milestone 3 demo**, then record it in agate/TASKS.md:
-   - Run `agate_controls_demo` and try `--theme <Mineral> --light`.
-   - On GNOME Wayland it now has a markup title bar. Check that dragging the title bar and resizing from the edges work there.
-   - Merge order: flint#4, then agate#6, then this PR. Then bump the submodule pointers in silica.
-2. **Do not start milestone 4 until the owner says so.** Its first tasks are in flint/TASKS.md (flint#5): replace flint's JSON parser with glaze, and its XML parser with pugixml, behind the existing `flint::xml` types. Hold flint#4, the hand-written XML parser, until then. The owner asked why we wrote our own parsers; ask before choosing to build rather than use a library.
-3. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
+1. **Milestone 4, first tasks (the owner started milestone 4 on 2026-11-25):** in flint, replace `flint::json` with
+   glaze and the hand-written XML parser with pugixml behind the existing `flint::xml` types (flint/TASKS.md). New
+   ADRs supersede flint ADR-0005 and ADR-0010. Re-run agate's markup and theme tests afterwards.
+2. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
    - binding syntax and modes (OneWay, TwoWay, OneTime);
    - how view models are found: reflection over `flint::model::Observable` members by name;
    - converters;
    - how DataContext flows down the tree;
    - command binding;
    - hot-reload scope (views, themes, both) and file watching (a flint facility).
-4. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
+3. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
 
 ## Working agreements (from the owner)
 
