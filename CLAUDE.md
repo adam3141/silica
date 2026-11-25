@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-26, session 2. Milestones 2, 3 and 4 are merged (flint#3–#7, agate#5–#7, opal#1–#2, silica#4–#8); this PR bumps the submodules to them._
+_Last updated: 2026-11-26, session 2. Milestones 2, 3 and 4 are merged (flint#3–#7, agate#5–#7, opal#1–#2, silica#4–#9). Milestone 5 is in review: agate#8 and this PR._
 
 ### Done
 
@@ -57,6 +57,13 @@ _Last updated: 2026-11-26, session 2. Milestones 2, 3 and 4 are merged (flint#3�
   - flint#7: `ModelClassOf<T>` (reflected view-model members), `ObjectRef`, `ObservableVector<T>`, `CollectionRef`, `FileWatcher`; log registries now live until exit.
   - agate#7: `DataContext`, WPF-identical `{Binding}` (modes, `BindsTwoWayByDefault{}`, StringFormat, FallbackValue, converters in resources), `ItemsControl` + `DataTemplate`, hot reload (`ApplicationOptions::hotReload`, `Window::LoadView`), `agate_tasks_demo`.
 
+- **Milestone 5** (in review: agate#8). Owner decisions (2026-11-26; ADRs agate 0026–0029): storyboards started by visual states, events and code; WPF animation names on one engine; all WPF timeline properties; full control; WPF's full set of render transforms; WPF easing classes plus the named curves; SnapshotAndReplace handoff; a gallery plus a stress page.
+  - Render transforms: `Matrix`, Translate/Scale/Rotate/Skew/Matrix transforms and TransformGroup (dependency objects, `TypeRegistry::RegisterObject<T>()`), `RenderTransform`/`RenderTransformOrigin`, a matrix per GPU instance, rotated clips in the shader, transformed hit testing.
+  - `EasingFunction` (WPF's eleven classes, modes and parameters; named curves unchanged), `KeySpline`.
+  - Timelines (`EvaluateTimeline`), `Storyboard`, From/To/By and keyframe animations for Double, Colour, Point, Thickness, CornerRadius, BoxShadow and Object, one typed engine (`TimelineAnimation<T>` via `PropertyOperations::createAnimation`), WPF property paths, `StoryboardController`.
+  - Reflected routed events, `FrameworkElement.Loaded`, EventTriggers with all storyboard actions (element, style and template triggers), VisualState storyboards.
+  - Demo `agate_animation_demo`: release build holds 59 fps with 2,000 tiles (4,000 animations) at 3.4 ms CPU per frame.
+
 ### Milestone 3 interaction check
 
 The owner asked whether the UI can be tested by clicking and dragging. Headless scripts (`--headless --script`, see
@@ -72,9 +79,9 @@ not yet confirmed that on GNOME Wayland.
 
 ### Next
 
-1. **Owner feedback on the milestone 4 demo.** Run `agate_tasks_demo`, edit `agate/demos/tasks_demo.xml` (or a theme file) while it runs and save.
-2. **Milestone 4 follow-ups** (agate/TASKS.md): ElementName/RelativeSource bindings, UpdateSourceTrigger, validation, ListBox with selection, virtualisation, reloading app resource files. Ask the owner which belong in milestone 4 and which wait.
-3. **Milestone 5**: storyboards and keyframes on the existing clock. Ask the owner first (a few questions at a time). opal starts after that.
+1. **Owner feedback on the milestone 5 demo** (`agate_animation_demo`) and approval to merge agate#8, then this PR, then bump the agate pointer in silica.
+2. **Follow-ups** to ask about (agate/TASKS.md): milestone 4's (ElementName/RelativeSource bindings, UpdateSourceTrigger, validation, ListBox with selection, virtualisation, reloading app resource files) and milestone 5's (HandoffBehavior Compose, VisualTransition storyboards, theme resources as animation values).
+3. **opal**: the editor starts after agate's UI model is settled. Ask the owner what comes next (a few questions at a time).
 
 ## Working agreements (from the owner)
 
