@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#5, agate#5–#6, opal#1, silica#4–#7). The owner has started milestone 4._
+_Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#5, agate#5–#6, opal#1, silica#4–#7), and flint#6 (glaze, pugixml). Milestone 4 is in review: flint#7, agate#7, opal#2 and this PR._
 
 ### Done
 
@@ -52,6 +52,11 @@ _Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#
   - **Demo**: `agate_controls_demo` loads `demos/controls_demo.xml`.
   - **Checks**: 95 agate and 96 flint tests. Clean under clang-tidy, ASan and UBSan, and in the release build.
 
+- **Milestone 4** (in review: flint#7, agate#7). Owner decisions this session (ADRs agate 0023–0025, flint 0011–0014):
+  - flint#6 (merged): glaze v9.1.0 replaces `flint::json` (used directly; `log::LoggingConfig` is a glaze-read struct), pugixml v1.16 parses behind `flint::xml`.
+  - flint#7: `ModelClassOf<T>` (reflected view-model members), `ObjectRef`, `ObservableVector<T>`, `CollectionRef`, `FileWatcher`; log registries now live until exit.
+  - agate#7: `DataContext`, WPF-identical `{Binding}` (modes, `BindsTwoWayByDefault{}`, StringFormat, FallbackValue, converters in resources), `ItemsControl` + `DataTemplate`, hot reload (`ApplicationOptions::hotReload`, `Window::LoadView`), `agate_tasks_demo`.
+
 ### Milestone 3 interaction check
 
 The owner asked whether the UI can be tested by clicking and dragging. Headless scripts (`--headless --script`, see
@@ -67,17 +72,9 @@ not yet confirmed that on GNOME Wayland.
 
 ### Next
 
-1. **Milestone 4, first tasks (the owner started milestone 4 on 2026-11-25):** in flint, replace `flint::json` with
-   glaze and the hand-written XML parser with pugixml behind the existing `flint::xml` types (flint/TASKS.md). New
-   ADRs supersede flint ADR-0005 and ADR-0010. Re-run agate's markup and theme tests afterwards.
-2. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
-   - binding syntax and modes (OneWay, TwoWay, OneTime);
-   - how view models are found: reflection over `flint::model::Observable` members by name;
-   - converters;
-   - how DataContext flows down the tree;
-   - command binding;
-   - hot-reload scope (views, themes, both) and file watching (a flint facility).
-3. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
+1. **Owner feedback on the milestone 4 demo.** Run `agate_tasks_demo`, edit `agate/demos/tasks_demo.xml` (or a theme file) while it runs and save. Merge order: flint#7, then agate#7 (it needs flint#7), opal#2, then this PR; then bump the submodule pointers in silica.
+2. **Milestone 4 follow-ups** (agate/TASKS.md): ElementName/RelativeSource bindings, UpdateSourceTrigger, validation, ListBox with selection, virtualisation, reloading app resource files. Ask the owner which belong in milestone 4 and which wait.
+3. **Milestone 5**: storyboards and keyframes on the existing clock. Ask the owner first (a few questions at a time). opal starts after that.
 
 ## Working agreements (from the owner)
 
@@ -104,6 +101,9 @@ not yet confirmed that on GNOME Wayland.
   - Bind reflected values to `constexpr` locals before using them in run-time expressions.
   - In a consteval function, a range-for over a temporary `std::vector<info>` fails. Bind the vector to a local first.
 - clang (LLVM 23) rejects `std::expected<std::any, E>` built from a `std::any`, and `std::optional<std::expected<std::any, E>>`: its constraint check recurses, while GCC accepts both. Construct with `std::in_place`.
+- glaze reflects structs with P2996 under GCC 16, but clang tooling falls back to a technique that needs linkage: keep glaze-reflected types out of anonymous namespaces (a named `detail` namespace with `// NOLINT(misc-use-internal-linkage)`).
+- GCC 16's `-Wmissing-field-initializers` warns about designated initialisers that omit members without a default member initialiser. Structs meant for partial designated initialisation give every member `{}` and suppress `readability-redundant-member-init` with the reason (see `flint/log/config.hpp`).
+- `tools/tidy.sh` file patterns match absolute paths, including generated `build/*/header_check/*.cpp`: anchor them, as in `'silica/flint/.*\.cpp'`.
 - GCC's `-O3` `-Wnull-dereference` fires on unchecked pointer results in release builds only. Check pointers (`ASSERT_NE` in tests) before dereferencing, and build the release preset before opening a PR.
 - Public dependency properties, observables, signals and routed events are PascalCase public members. `.clang-tidy` ignores PascalCase public members and class constants, and review enforces that only those kinds use the exception (coding-style.md sections 4 and 7).
 
@@ -113,7 +113,7 @@ not yet confirmed that on GNOME Wayland.
 cmake --preset debug && cmake --build --preset debug && ctest --preset debug
 cmake --preset asan && cmake --build --preset asan && ctest --preset asan
 cmake --preset profile && cmake --build --preset profile        # Tracy; then run tracy-profiler
-tools/tidy.sh build/debug 'flint/.*\.cpp'                        # clang-tidy, must print no warnings
+tools/tidy.sh build/debug 'silica/flint/.*\.cpp'                 # clang-tidy, must print no warnings
 find flint agate \( -name '*.cpp' -o -name '*.hpp' \) | xargs clang-format -i
 tools/sync-configs.sh                                            # after editing the root .clang-format, .clang-tidy or .clangd
 ```
