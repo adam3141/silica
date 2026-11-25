@@ -14,7 +14,7 @@ The owner's original brief is in `docs/brief.md`. Work on flint and agate first;
 
 ## Where things stand (update this section at the end of each session)
 
-_Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, opal#1, silica#4–#6). Milestone 3 is in progress._
+_Last updated: 2026-11-25, session 2. Milestones 2 and 3 are merged (flint#3–#5, agate#5–#6, opal#1, silica#4–#7). The owner has started milestone 4._
 
 ### Done
 
@@ -41,20 +41,48 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
     - WPF precedence with coercion; WPF-style attached properties;
     - `Observable<T>` in flint; parent-owned children (`unique_ptr`); scoped connections; layout rounding on.
 
+- **agate milestone 3** (flint#4, agate#6; merged). Owner decisions this session: bring the XML loader forward from milestone 4; visual-state transitions now (storyboards stay in milestone 5); all four extra controls; window chrome in markup now.
+  - **flint**: `flint::xml`, an XML parser with line and column locations (flint ADR-0010).
+  - **Markup** (ADR-0020): loader, type registry, resources, `Style`, `ControlTemplate` with visual states, `{StaticResource}`, `{DynamicResource}`, `{TemplateBinding}`, `{x:Null}` and `{x:Type}`.
+  - **Precedence correction**: VisualState now ranks above Template (amends ADR-0015). My milestone 2 order would have stopped states from changing template parts; flagged to the owner.
+  - **Animation** (ADR-0021): an animation clock with transitions whose timings are theme resources, plus timers.
+  - **Controls** (ADR-0022): Button, ToggleSwitch, CheckBox, RadioButton, Slider, ScrollViewer, TextBox and TitleBar.
+  - **Themes**: base, dark, light and five minerals in XML (`agate/themes`), `ApplyTheme`, the System variant, animated switching.
+  - **Window chrome**: borderless windows with WindowChrome regions, commands and SDL hit testing.
+  - **Demo**: `agate_controls_demo` loads `demos/controls_demo.xml`.
+  - **Checks**: 95 agate and 96 flint tests. Clean under clang-tidy, ASan and UBSan, and in the release build.
+
+### Milestone 3 interaction check
+
+The owner asked whether the UI can be tested by clicking and dragging. Headless scripts (`--headless --script`, see
+`Application::RunScript`) drove the controls demo with clicks, drags, keys, the wheel and theme switches, capturing
+frames mid-transition. Hover, press, toggles, radio groups, slider and scroll-bar drags, track clicks, typing, Tab,
+Space/Enter and theme fades all behaved. Two bugs were found and fixed (agate#6):
+
+- states set by code before the first frame animated in. Elements now snap until first arranged (`HasBeenArranged`);
+- the window background switched instantly on a theme change. It now fades with the theme.
+
+Not testable headlessly: the compositor moving and resizing a real window from the custom title bar. The owner has
+not yet confirmed that on GNOME Wayland.
+
 ### Next
 
-1. **Get the owner's feedback on the milestone 2 demo** (`agate_layout_demo`; pages Grid, Dock, Stack, Canvas, Stress, Reflection). Record it in agate/TASKS.md. After the PRs merge, bump the flint and agate pointers in silica via a PR.
-2. **agate milestone 3**: controls, styles, templates and themes. Ask first, a few at a time:
-   - how a control's template is written before markup exists (C++ builders or markup);
-   - Style and Setter shape, and how visual states and transitions are declared (timings in markup, owner requirement);
-   - the resource-dictionary and `ApplyTheme` API;
-   - which controls come first;
-   - window chrome in markup (owner request).
-3. Then milestones 4 (markup and binding) and 5 (animation) per `agate/TASKS.md`. opal starts after that.
+1. **Milestone 4, first tasks (the owner started milestone 4 on 2026-11-25):** in flint, replace `flint::json` with
+   glaze and the hand-written XML parser with pugixml behind the existing `flint::xml` types (flint/TASKS.md). New
+   ADRs supersede flint ADR-0005 and ADR-0010. Re-run agate's markup and theme tests afterwards.
+2. **agate milestone 4**: binding, view models and hot reload. Ask the owner first, a few questions at a time:
+   - binding syntax and modes (OneWay, TwoWay, OneTime);
+   - how view models are found: reflection over `flint::model::Observable` members by name;
+   - converters;
+   - how DataContext flows down the tree;
+   - command binding;
+   - hot-reload scope (views, themes, both) and file watching (a flint facility).
+3. Then milestone 5 (storyboards and keyframes on the existing clock). opal starts after that.
 
 ## Working agreements (from the owner)
 
 - **Ask, don't guess.** Ask design questions a few at a time (three or four per round). Do not invent product decisions. Record each decision as an ADR in the right library.
+- **Prefer established libraries.** Before writing our own version of a commodity component (parsers, serialisation), offer the owner the established libraries and let them choose.
 - **Follow `docs/architecture/coding-style.md`.** clang-format and clang-tidy (`tools/tidy.sh`) must be clean. Every public declaration gets a `///` comment. Errors are `std::expected`.
 - **Non-UI code goes in flint.** flint must stay usable by command-line tools, services, other GUI apps and games.
 - **Cross-platform later**, for both OS and graphics API: keep platform and GL code behind interfaces.
@@ -75,6 +103,8 @@ _Last updated: 2026-11-25, session 2. Milestone 2 is merged (flint#3, agate#5, o
   - A pointer to a function template specialised on a `std::meta::info` is consteval-only. Pass a member pointer (`&[:member:]`) as the template argument instead.
   - Bind reflected values to `constexpr` locals before using them in run-time expressions.
   - In a consteval function, a range-for over a temporary `std::vector<info>` fails. Bind the vector to a local first.
+- clang (LLVM 23) rejects `std::expected<std::any, E>` built from a `std::any`, and `std::optional<std::expected<std::any, E>>`: its constraint check recurses, while GCC accepts both. Construct with `std::in_place`.
+- GCC's `-O3` `-Wnull-dereference` fires on unchecked pointer results in release builds only. Check pointers (`ASSERT_NE` in tests) before dereferencing, and build the release preset before opening a PR.
 - Public dependency properties, observables, signals and routed events are PascalCase public members. `.clang-tidy` ignores PascalCase public members and class constants, and review enforces that only those kinds use the exception (coding-style.md sections 4 and 7).
 
 ## Commands (inside the dev container, from the silica root)
